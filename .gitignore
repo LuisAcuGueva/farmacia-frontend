@@ -1,5 +1,135 @@
+# ==========================================
+# 🏥 Sistema de Farmacia - Frontend
+# ==========================================
+
+# ==========================================
+# Dependencies
+# ==========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
+
+# ==========================================
+# Build & Distribution
+# ==========================================
+dist/
+dist-ssr/
+build/
+.output/
+.nuxt/
+.cache/
+
+# ==========================================
+# Environment Variables
+# ==========================================
+.env
+.env*.local
+.env.production
+.env.development
+!.env.example
+
+# ==========================================
+# Editor & IDE
+# ==========================================
+
+# VSCode
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.*.sw[a-z]
+*.un~
+Session.vim
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# ==========================================
+# Operating System
+# ==========================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+.nfs*
+
+# ==========================================
+# Testing
+# ==========================================
+coverage/
+*.lcov
+.nyc_output/
+playwright-report/
+test-results/
+e2e-results/
+.vitest/
+htmlcov/
+
+# ==========================================
 # Logs
-logs
+# ==========================================
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,33 +137,100 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-.DS_Store
-dist
-dist-ssr
-coverage
-*.local
+# ==========================================
+# Temporary Files
+# ==========================================
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*.swn
+.~lock.*
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
+# ==========================================
+# TypeScript
+# ==========================================
 *.tsbuildinfo
 
+# ==========================================
+# Vite
+# ==========================================
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# ==========================================
+# Package Managers
+# ==========================================
+.yarn/
+.pnp.*
+.yarn-integrity
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ==========================================
+# Storybook
+# ==========================================
+storybook-static/
+.storybook-out/
+
+# ==========================================
+# CSS Preprocessors
+# ==========================================
+*.css.map
+*.sass.map
+*.scss.map
+
+# ==========================================
+# Local Development
+# ==========================================
+.local/
+.vercel
+.netlify
+.firebase/
+
+# ==========================================
+# Misc
+# ==========================================
+*.seed
+*.pid
+*.pid.lock
 .eslintcache
+.stylelintcache
+.prettiercache
 
-# Cypress
-/cypress/videos/
-/cypress/screenshots/
+# Service worker
+sw.*
 
-# Vitest
-__screenshots__/
+# ==========================================
+# Project Specific
+# ==========================================
 
-test-results/
-playwright-report/
+# Documentation builds
+docs/.vitepress/dist
+docs/.vitepress/cache
+
+# Backup files
+*.backup
+*.old
+*.orig
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Certificates
+*.pem
+*.key
+*.crt
+
+# Sentry
+.sentryclirc
+
+# ==========================================
+# DO NOT IGNORE
+# ==========================================
+!.gitkeep
+!.vscode/extensions.json
