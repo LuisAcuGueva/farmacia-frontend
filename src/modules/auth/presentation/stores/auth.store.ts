@@ -13,7 +13,6 @@ export const useAuthStore = defineStore('auth', () => {
   // State
   const user = ref<UserEntity | null>(null)
   const accessToken = ref<string | null>(null)
-  const refreshToken = ref<string | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
@@ -32,17 +31,10 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       isLoading.value = true
       error.value = null
-
       const session: SessionEntity = await authService.login(credentials)
-
-      // Actualizar state
       user.value = session.user
       accessToken.value = session.tokens.accessToken
-      refreshToken.value = session.tokens.refreshToken
-
-      // Persistir en localStorage
-      persistSession(session)
-
+      persistUserData(session.user)
       return session
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Error al iniciar sesión'
@@ -60,34 +52,20 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (err) {
       console.error('Logout error:', err)
     } finally {
-      // Limpiar state
       user.value = null
       accessToken.value = null
-      refreshToken.value = null
       error.value = null
       isLoading.value = false
-
-      // Limpiar localStorage
-      clearSession()
+      clearUserData()
     }
   }
 
   async function refreshSession() {
     try {
-      if (!refreshToken.value) {
-        throw new Error('No refresh token available')
-      }
-
       const session: SessionEntity = await authService.refreshSession()
-
-      // Actualizar state
       user.value = session.user
       accessToken.value = session.tokens.accessToken
-      refreshToken.value = session.tokens.refreshToken
-
-      // Persistir en localStorage
-      persistSession(session)
-
+      persistUserData(session.user)
       return session
     } catch (err) {
       console.error('Refresh session error:', err)
@@ -136,17 +114,23 @@ export const useAuthStore = defineStore('auth', () => {
   function initializeFromStorage() {
     try {
       const storedUser = localStorage.getItem('user')
-      const storedAccessToken = localStorage.getItem('accessToken')
-      const storedRefreshToken = localStorage.getItem('refreshToken')
-
-      if (storedUser && storedAccessToken) {
+      const storedAccessToken = sessionStorage.getItem('accessToken')
+      if (storedUser) {
         user.value = JSON.parse(storedUser)
-        accessToken.value = storedAccessToken
-        refreshToken.value = storedRefreshToken
+        // Si hay accessToken en sessionStorage, usarlo
+        if (storedAccessToken) {
+          accessToken.value = storedAccessToken
+        } else {
+          // Si no hay accessToken, intentar refrescar sesión
+          refreshSession().catch(() => {
+            // Si falla el refresh, limpiar todo
+            clearUserData()
+          })
+        }
       }
     } catch (err) {
       console.error('Error initializing from storage:', err)
-      clearSession()
+      clearUserData()
     }
   }
 
@@ -159,23 +143,41 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // Helper functions
-  function persistSession(session: SessionEntity) {
-    localStorage.setItem('user', JSON.stringify(session.user))
-    localStorage.setItem('accessToken', session.tokens.accessToken)
-    localStorage.setItem('refreshToken', session.tokens.refreshToken)
+  /**
+   * Persiste solo datos NO sensibles del usuario en localStorage
+   * Los tokens se manejan de forma segura:
+   * - accessToken: sessionStorage (se limpia al cerrar navegador)
+   * - refreshToken: httpOnly cookie (manejado por backend)
+   */
+  function persistUserData(userData: UserEntity) {
+    const safeUserData = {
+      id: userData.id,
+      email: userData.email,
+      name: userData.name,
+      roles: userData.roles,
+      permissions: userData.permissions,
+      isActive: userData.isActive,
+      branchId: userData.branchId,
+      branchName: userData.branchName,
+    }
+    localStorage.setItem('user', JSON.stringify(safeUserData))
   }
 
-  function clearSession() {
+  /**
+   * Limpia solo los datos del usuario
+   * Los tokens se limpian automáticamente:
+   * - sessionStorage al cerrar navegador
+   * - cookie httpOnly por el backend en logout
+   */
+  function clearUserData() {
     localStorage.removeItem('user')
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
+    sessionStorage.removeItem('accessToken')
   }
 
   return {
     // State
     user,
     accessToken,
-    refreshToken,
     isLoading,
     error,
     // Computed

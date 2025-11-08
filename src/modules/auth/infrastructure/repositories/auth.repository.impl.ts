@@ -24,16 +24,16 @@ export class AuthRepositoryImpl implements AuthRepository {
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: true, // IMPORTANTE: Permite enviar cookies httpOnly
     })
 
     this.setupInterceptors()
   }
 
   private setupInterceptors(): void {
-    // Request interceptor para añadir token
     this.apiClient.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('accessToken')
+        const token = sessionStorage.getItem('accessToken')
         if (token) {
           config.headers.Authorization = `Bearer ${token}`
         }
@@ -44,14 +44,27 @@ export class AuthRepositoryImpl implements AuthRepository {
       },
     )
 
-    // Response interceptor para manejo de errores
     this.apiClient.interceptors.response.use(
       (response) => response,
-      (error) => {
+      async (error) => {
+        const originalRequest = error.config
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true
+          try {
+            const response = await this.apiClient.post<LoginResponseDTO>('/auth/refresh')
+            if (response.data.accessToken) {
+              sessionStorage.setItem('accessToken', response.data.accessToken)
+              originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`
+              return this.apiClient(originalRequest)
+            }
+          } catch (refreshError) {
+            this.clearAuthData()
+            window.location.href = '/login'
+            return Promise.reject(refreshError)
+          }
+        }
         if (error.response?.status === 401) {
-          // Token expirado o inválido
-          localStorage.removeItem('accessToken')
-          localStorage.removeItem('refreshToken')
+          this.clearAuthData()
           window.location.href = '/login'
         }
         return Promise.reject(error)
@@ -59,18 +72,20 @@ export class AuthRepositoryImpl implements AuthRepository {
     )
   }
 
+  /**
+   * Método centralizado para limpiar datos de autenticación
+   */
+  private clearAuthData(): void {
+    sessionStorage.removeItem('accessToken')
+    localStorage.removeItem('user')
+  }
+
   async login(credentials: LoginDTO): Promise<LoginResponseDTO> {
     try {
       const response = await this.apiClient.post<LoginResponseDTO>('/auth/login', credentials)
-
-      // Guardar tokens en localStorage
       if (response.data.accessToken) {
-        localStorage.setItem('accessToken', response.data.accessToken)
-        if (response.data.refreshToken) {
-          localStorage.setItem('refreshToken', response.data.refreshToken)
-        }
+        sessionStorage.setItem('accessToken', response.data.accessToken)
       }
-
       return response.data
     } catch (error: unknown) {
       console.error('Login error:', error)
@@ -88,28 +103,20 @@ export class AuthRepositoryImpl implements AuthRepository {
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
-      // Limpiar tokens locales
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
-      localStorage.removeItem('user')
+      this.clearAuthData()
     }
   }
 
-  async refreshToken(data: RefreshTokenDTO): Promise<LoginResponseDTO> {
+  async refreshToken(_data?: RefreshTokenDTO): Promise<LoginResponseDTO> {
     try {
-      const response = await this.apiClient.post<LoginResponseDTO>('/auth/refresh', data)
-
-      // Actualizar tokens
+      const response = await this.apiClient.post<LoginResponseDTO>('/auth/refresh')
       if (response.data.accessToken) {
-        localStorage.setItem('accessToken', response.data.accessToken)
-        if (response.data.refreshToken) {
-          localStorage.setItem('refreshToken', response.data.refreshToken)
-        }
+        sessionStorage.setItem('accessToken', response.data.accessToken)
       }
-
       return response.data
     } catch (error: unknown) {
       console.error('Refresh token error:', error)
+      this.clearAuthData()
       const errorMessage =
         axios.isAxiosError(error) && error.response?.data?.message
           ? error.response.data.message
