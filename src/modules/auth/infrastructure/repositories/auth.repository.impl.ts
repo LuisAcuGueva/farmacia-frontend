@@ -72,9 +72,13 @@ export class AuthRepositoryImpl implements AuthRepository {
       }
 
       return response.data
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error)
-      throw new Error(error.response?.data?.message || 'Error al iniciar sesión')
+      const errorMessage =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : 'Error al iniciar sesión'
+      throw new Error(errorMessage)
     }
   }
 
@@ -104,9 +108,13 @@ export class AuthRepositoryImpl implements AuthRepository {
       }
 
       return response.data
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Refresh token error:', error)
-      throw new Error(error.response?.data?.message || 'Error al refrescar sesión')
+      const errorMessage =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : 'Error al refrescar sesión'
+      throw new Error(errorMessage)
     }
   }
 
@@ -114,7 +122,7 @@ export class AuthRepositoryImpl implements AuthRepository {
     try {
       const response = await this.apiClient.get('/auth/verify')
       return response.status === 200
-    } catch (error) {
+    } catch {
       return false
     }
   }
@@ -122,20 +130,26 @@ export class AuthRepositoryImpl implements AuthRepository {
   async requestPasswordReset(data: ResetPasswordDTO): Promise<void> {
     try {
       await this.apiClient.post('/auth/reset-password', data)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Request password reset error:', error)
-      throw new Error(
-        error.response?.data?.message || 'Error al solicitar recuperación de contraseña',
-      )
+      const errorMessage =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : 'Error al solicitar recuperación de contraseña'
+      throw new Error(errorMessage)
     }
   }
 
   async changePassword(data: ChangePasswordDTO): Promise<void> {
     try {
       await this.apiClient.post('/auth/change-password', data)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Change password error:', error)
-      throw new Error(error.response?.data?.message || 'Error al cambiar contraseña')
+      const errorMessage =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : 'Error al cambiar contraseña'
+      throw new Error(errorMessage)
     }
   }
 }
