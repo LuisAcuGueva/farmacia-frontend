@@ -9,11 +9,11 @@ const app = createApp(App)
 const pinia = createPinia()
 
 app.use(pinia)
-app.use(router)
 
-// Inicializar auth store después de que Pinia esté instalado
+// Inicializar auth store ANTES de instalar el router
 import { useAuthStore } from './modules/auth/presentation/stores/auth.store'
 const authStore = useAuthStore()
 authStore.initializeFromStorage()
 
+app.use(router)
 app.mount('#app')

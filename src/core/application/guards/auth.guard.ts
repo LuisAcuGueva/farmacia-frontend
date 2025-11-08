@@ -5,20 +5,14 @@ import { useAuthStore } from '../../../modules/auth/presentation/stores/auth.sto
  * Auth Guard
  * Guard para proteger rutas que requieren autenticación
  */
-export async function authGuard(
+export function authGuard(
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
   next: NavigationGuardNext,
 ) {
   const authStore = useAuthStore()
 
-  // Si la ruta no requiere autenticación, permitir acceso
-  if (!to.meta.requiresAuth) {
-    next()
-    return
-  }
-
-  // Verificar si el usuario está autenticado
+  // Verificar si el usuario está autenticado (localmente)
   if (!authStore.isAuthenticated) {
     // Redirigir al login
     next({
@@ -28,29 +22,8 @@ export async function authGuard(
     return
   }
 
-  // Verificar sesión con el servidor
-  try {
-    const isValid = await authStore.verifySession()
-
-    if (!isValid) {
-      // Sesión inválida, limpiar y redirigir al login
-      await authStore.logout()
-      next({
-        name: 'Login',
-        query: { redirect: to.fullPath },
-      })
-      return
-    }
-
-    // Sesión válida, permitir acceso
-    next()
-  } catch (error) {
-    console.error('Error verifying session:', error)
-    next({
-      name: 'Login',
-      query: { redirect: to.fullPath },
-    })
-  }
+  // Usuario autenticado, permitir acceso
+  next()
 }
 
 /**

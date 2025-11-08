@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { authGuard, guestGuard } from '../core/application/guards/auth.guard'
 import { authRoutes } from '../modules/auth/presentation/router/auth.routes'
-import { useAuthStore } from '../modules/auth/presentation/stores/auth.store'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,15 +35,10 @@ const router = createRouter({
 
 // Global navigation guards
 router.beforeEach((to, from, next) => {
-  // Inicializar auth store desde localStorage
-  const authStore = useAuthStore()
-  authStore.initializeFromStorage()
-
-  // Aplicar guard de autenticación
-  if (to.meta.requiresAuth !== false) {
+  // Aplicar guards según el tipo de ruta
+  if (to.meta.requiresAuth === true) {
     authGuard(to, from, next)
-  } else if (to.name === 'Login' || to.name === 'RecoverPassword') {
-    // Aplicar guest guard a rutas de auth
+  } else if (to.meta.requiresGuest === true) {
     guestGuard(to, from, next)
   } else {
     next()
