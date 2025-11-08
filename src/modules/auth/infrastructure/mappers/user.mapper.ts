@@ -1,6 +1,25 @@
 import type { UserEntity } from '../../domain/entities/user.entity'
 
 /**
+ * API User Response Type
+ */
+interface APIUserResponse {
+  id: number
+  name: string
+  email: string
+  branchId?: number
+  branch_id?: number
+  branchName?: string
+  branch_name?: string
+  roles?: string[]
+  permissions?: string[]
+  isActive?: boolean
+  is_active?: boolean
+  createdAt?: string
+  updatedAt?: string
+}
+
+/**
  * User Mapper
  * Mapea datos entre la capa de infraestructura y dominio
  */
@@ -8,7 +27,7 @@ export class UserMapper {
   /**
    * Mapea datos del API al dominio
    */
-  static toDomain(data: any): UserEntity {
+  static toDomain(data: APIUserResponse): UserEntity {
     return {
       id: data.id,
       name: data.name,
@@ -26,7 +45,7 @@ export class UserMapper {
   /**
    * Mapea datos del dominio al API
    */
-  static toAPI(user: UserEntity): any {
+  static toAPI(user: UserEntity): APIUserResponse {
     return {
       id: user.id,
       name: user.name,
@@ -36,8 +55,8 @@ export class UserMapper {
       roles: user.roles,
       permissions: user.permissions,
       is_active: user.isActive,
-      created_at: user.createdAt?.toISOString(),
-      updated_at: user.updatedAt?.toISOString(),
+      createdAt: user.createdAt?.toISOString(),
+      updatedAt: user.updatedAt?.toISOString(),
     }
   }
 }
