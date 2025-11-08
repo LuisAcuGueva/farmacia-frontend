@@ -6,28 +6,25 @@ import type { RouteRecordRaw } from 'vue-router'
  */
 export const authRoutes: RouteRecordRaw[] = [
   {
+    path: '/auth/login',
+    name: 'Login',
+    component: () => import('../pages/LoginPage.vue'),
+    meta: {
+      requiresGuest: true,
+      title: 'Iniciar Sesión',
+    },
+  },
+  {
+    path: '/auth/recover-password',
+    name: 'RecoverPassword',
+    component: () => import('../pages/RecoverPasswordPage.vue'),
+    meta: {
+      requiresGuest: true,
+      title: 'Recuperar Contraseña',
+    },
+  },
+  {
     path: '/auth',
-    name: 'Auth',
     redirect: '/auth/login',
-    children: [
-      {
-        path: 'login',
-        name: 'Login',
-        component: () => import('../pages/LoginPage.vue'),
-        meta: {
-          requiresAuth: false,
-          title: 'Iniciar Sesión',
-        },
-      },
-      {
-        path: 'recover-password',
-        name: 'RecoverPassword',
-        component: () => import('../pages/RecoverPasswordPage.vue'),
-        meta: {
-          requiresAuth: false,
-          title: 'Recuperar Contraseña',
-        },
-      },
-    ],
   },
 ]
