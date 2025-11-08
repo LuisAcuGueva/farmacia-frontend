@@ -1,10 +1,22 @@
 {
   "recommendations": [
     "Vue.volar",
-    "vitest.explorer",
-    "ms-playwright.playwright",
+    "vue.vscode-typescript-vue-plugin",
     "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-playwright.playwright",
+    "vitest.explorer",
+    "usernamehw.errorlens",
     "EditorConfig.EditorConfig",
-    "esbenp.prettier-vscode"
+    "streetsidesoftware.code-spell-checker",
+    "gruntfuggly.todo-tree",
+    "eamodio.gitlens"
+  ],
+  "unwantedRecommendations": [
+    "octref.vetur",
+    "hookyqr.beautify",
+    "dbaeumer.jshint",
+    "ms-vscode.vscode-typescript-tslint-plugin"
   ]
 }

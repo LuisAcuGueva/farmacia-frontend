@@ -1,0 +1,38 @@
+# ==========================================
+# Prettier Ignore
+# ==========================================
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build & Distribution
+dist/
+dist-ssr/
+build/
+.output/
+.nuxt/
+coverage/
+
+# Testing
+playwright-report/
+test-results/
+
+# Logs
+*.log
+
+# Config files with specific formatting
+pnpm-workspace.yaml
+
+# Auto-generated files
+*.min.js
+*.min.css
+.tsbuildinfo
+
+# Public assets
+public/
+
+# Markdown in node_modules
+**/node_modules/**/*.md
