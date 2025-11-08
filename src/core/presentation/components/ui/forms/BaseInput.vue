@@ -36,9 +36,14 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  id: '',
   type: 'text',
+  label: '',
+  placeholder: '',
   disabled: false,
   required: false,
+  error: '',
+  hint: '',
 })
 
 const emit = defineEmits<{

@@ -46,6 +46,7 @@ const props = withDefaults(defineProps<Props>(), {
   size: 'md',
   disabled: false,
   loading: false,
+  loadingText: 'Cargando...',
   fullWidth: false,
 })
 
