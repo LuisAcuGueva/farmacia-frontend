@@ -6,6 +6,7 @@ import type {
   ResetPasswordDTO,
   ChangePasswordDTO,
 } from '../../domain/dtos/login.dto'
+import { axiosInstance } from '@/core/config/axios.config'
 import axios, { type AxiosInstance } from 'axios'
 
 /**
@@ -14,62 +15,11 @@ import axios, { type AxiosInstance } from 'axios'
  */
 export class AuthRepositoryImpl implements AuthRepository {
   private readonly apiClient: AxiosInstance
-  private readonly baseURL: string
 
-  constructor(baseURL?: string) {
-    this.baseURL = baseURL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
-
-    this.apiClient = axios.create({
-      baseURL: this.baseURL,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true, // IMPORTANTE: Permite enviar cookies httpOnly
-    })
-
-    this.setupInterceptors()
-  }
-
-  private setupInterceptors(): void {
-    this.apiClient.interceptors.request.use(
-      (config) => {
-        const token = sessionStorage.getItem('accessToken')
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`
-        }
-        return config
-      },
-      (error) => {
-        return Promise.reject(error)
-      },
-    )
-
-    this.apiClient.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        const originalRequest = error.config
-        if (error.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true
-          try {
-            const response = await this.apiClient.post<LoginResponseDTO>('/auth/refresh')
-            if (response.data.accessToken) {
-              sessionStorage.setItem('accessToken', response.data.accessToken)
-              originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`
-              return this.apiClient(originalRequest)
-            }
-          } catch (refreshError) {
-            this.clearAuthData()
-            window.location.href = '/login'
-            return Promise.reject(refreshError)
-          }
-        }
-        if (error.response?.status === 401) {
-          this.clearAuthData()
-          window.location.href = '/login'
-        }
-        return Promise.reject(error)
-      },
-    )
+  constructor() {
+    // Usar la instancia central para que los interceptors globales (tenant, auth, error)
+    // sean aplicados también a las peticiones de autenticación (login, refresh, etc.)
+    this.apiClient = axiosInstance
   }
 
   /**
@@ -80,9 +30,36 @@ export class AuthRepositoryImpl implements AuthRepository {
     localStorage.removeItem('user')
   }
 
+  /**
+   * Detecta si estamos en contexto de admin
+   */
+  private async isAdminContext(): Promise<boolean> {
+    try {
+      const { useTenantStore } = await import('@/core/tenant/presentation/stores/tenant.store')
+      const tenantStore = useTenantStore()
+      return tenantStore.isAdmin
+    } catch (error) {
+      console.warn('[Auth Repository] Error al detectar contexto admin:', error)
+      return false
+    }
+  }
+
   async login(credentials: LoginDTO): Promise<LoginResponseDTO> {
     try {
-      const response = await this.apiClient.post<LoginResponseDTO>('/auth/login', credentials)
+      // Detectar si es admin para usar el endpoint correcto
+      const isAdmin = await this.isAdminContext()
+      const endpoint = isAdmin ? '/admin/auth/login' : '/auth/login'
+
+      if (import.meta.env.DEV) {
+        console.log('🔐 [Auth Repository] Login:', {
+          isAdmin,
+          endpoint,
+          email: credentials.email,
+        })
+      }
+
+      const response = await this.apiClient.post<LoginResponseDTO>(endpoint, credentials)
+
       if (response.data.accessToken) {
         sessionStorage.setItem('accessToken', response.data.accessToken)
       }
@@ -99,7 +76,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
   async logout(): Promise<void> {
     try {
-      await this.apiClient.post('/auth/logout')
+      const isAdmin = await this.isAdminContext()
+      const endpoint = isAdmin ? '/admin/auth/logout' : '/auth/logout'
+
+      await this.apiClient.post(endpoint)
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
@@ -109,7 +89,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
   async refreshToken(_data?: RefreshTokenDTO): Promise<LoginResponseDTO> {
     try {
-      const response = await this.apiClient.post<LoginResponseDTO>('/auth/refresh')
+      const isAdmin = await this.isAdminContext()
+      const endpoint = isAdmin ? '/admin/auth/refresh' : '/auth/refresh'
+
+      const response = await this.apiClient.post<LoginResponseDTO>(endpoint)
       if (response.data.accessToken) {
         sessionStorage.setItem('accessToken', response.data.accessToken)
       }
@@ -127,7 +110,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
   async verifySession(): Promise<boolean> {
     try {
-      const response = await this.apiClient.get('/auth/verify')
+      const isAdmin = await this.isAdminContext()
+      const endpoint = isAdmin ? '/admin/auth/verify' : '/auth/verify'
+
+      const response = await this.apiClient.get(endpoint)
       return response.status === 200
     } catch {
       return false

@@ -13,6 +13,7 @@ interface APIUserResponse {
   branch_name?: string
   roles?: string[]
   permissions?: string[]
+  role?: string // Para admin (SUPER_ADMIN, ADMIN, etc.)
   isActive?: boolean
   is_active?: boolean
   createdAt?: string
@@ -28,13 +29,16 @@ export class UserMapper {
    * Mapea datos del API al dominio
    */
   static toDomain(data: APIUserResponse): UserEntity {
+    // Si tiene 'role' (admin), convertirlo a array de roles
+    const roles = data.roles || (data.role ? [data.role] : [])
+
     return {
       id: data.id,
       name: data.name,
       email: data.email,
       branchId: data.branchId || data.branch_id,
       branchName: data.branchName || data.branch_name,
-      roles: data.roles || [],
+      roles: roles,
       permissions: data.permissions || [],
       isActive: data.isActive ?? data.is_active ?? true,
       createdAt: data.createdAt ? new Date(data.createdAt) : undefined,

@@ -18,16 +18,23 @@ export class LoginUseCase {
       // Realizar login a través del repositorio
       const response = await this.authRepository.login(credentials)
 
+      // Determinar si es respuesta de admin o tenant
+      const userData = response.admin || response.user
+
+      if (!userData) {
+        throw new Error('Respuesta de login inválida: falta datos de usuario/admin')
+      }
+
       // Mapear respuesta a entidad de sesión
       const session: SessionEntity = {
-        user: UserMapper.toDomain(response.user),
+        user: UserMapper.toDomain(userData),
         tokens: {
           accessToken: response.accessToken,
           refreshToken: response.refreshToken || '',
-          expiresIn: 86400, // 24 horas por defecto
-          tokenType: 'Bearer',
+          expiresIn: response.expiresIn || 86400,
+          tokenType: response.tokenType || 'Bearer',
         },
-        expiresAt: new Date(Date.now() + 86400 * 1000), // 24 horas
+        expiresAt: new Date(Date.now() + (response.expiresIn || 86400) * 1000),
       }
 
       return session

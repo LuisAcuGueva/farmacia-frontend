@@ -9,20 +9,29 @@ export interface LoginDTO {
 }
 
 /**
+ * User Data en la respuesta de login
+ */
+export interface LoginUserData {
+  id: number
+  name: string
+  email: string
+  branchId?: number
+  roles?: string[]
+  permissions?: string[]
+  role?: string // Para admin (SUPER_ADMIN, ADMIN, etc.)
+}
+
+/**
  * Login Response DTO
- * Estructura real del backend
+ * Estructura del backend para tenant login
  */
 export interface LoginResponseDTO {
   accessToken: string
   refreshToken?: string
-  user: {
-    id: number
-    name: string
-    email: string
-    branchId?: number
-    roles: string[]
-    permissions: string[]
-  }
+  tokenType: string
+  expiresIn: number
+  user?: LoginUserData // Para tenant
+  admin?: LoginUserData // Para admin
 }
 
 /**
