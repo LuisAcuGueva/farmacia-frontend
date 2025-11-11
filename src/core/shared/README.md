@@ -427,6 +427,47 @@ Página cuando el tenant está suspendido:
 - Información de contacto
 - Sin acceso a funcionalidades
 
+##### **`AdminDashboardPage.vue`** ⭐ NUEVO
+
+Dashboard específico para Super Administradores:
+
+- **Stats Globales**: Total tenants, activos, en trial, suspendidos
+- **Métricas de Crecimiento**: Tasa de crecimiento, nuevos hoy
+- **Distribución por Planes**: Free, Standard, Premium, Enterprise
+- **Actividad Reciente**: Tenants creados, actualizados, suspendidos
+- **Acciones Rápidas**: Gestionar tenants, crear nuevo, analytics, configuración
+- **Gráficos**: Crecimiento de tenants (placeholder para Chart.js)
+
+**Características:**
+
+- Diseño optimizado para administración global
+- Cards con indicadores visuales y colores específicos
+- Timeline de actividad reciente
+- Sistema de alertas para tenants que requieren atención
+- Integración con router para navegación contextual
+
+##### **`TenantDashboardPage.vue`** ⭐ NUEVO
+
+Dashboard específico para usuarios de Farmacia (Tenant):
+
+- **Métricas de Negocio**: Ventas del día/mes, productos, inventario
+- **Alertas de Inventario**: Productos con stock bajo
+- **Badge de Plan**: Muestra plan actual y límites de uso
+- **Alerta de Trial**: Notifica días restantes del periodo de prueba
+- **Ventas Recientes**: Lista de últimas transacciones
+- **Gráficos**: Ventas de últimos 7/30/90 días (placeholder para Chart.js)
+- **Acciones Rápidas**: Nueva venta, productos, inventario, clientes, reportes, configuración
+
+**Características:**
+
+- Diseño enfocado en operación diaria de farmacia
+- Indicadores de uso vs límites del plan
+- Sistema de alertas inteligente para inventario crítico
+- Acciones contextuales según features del plan
+- Integración con composable `useTenant()` para datos específicos
+- Formato de moneda con separadores de miles
+- Diseño responsivo mobile-first
+
 ## 🔄 Flujo de Interceptores
 
 ### Request Flow
