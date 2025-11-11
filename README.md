@@ -7,6 +7,7 @@ Sistema frontend para gestión de farmacia multisucursal construido con **Vue 3*
 - [Características](#-características)
 - [Stack Tecnológico](#-stack-tecnológico)
 - [Arquitectura](#-arquitectura)
+- [Multi-Tenant](#-multi-tenant)
 - [Requisitos Previos](#-requisitos-previos)
 - [Instalación](#-instalación)
 - [Desarrollo](#-desarrollo)
@@ -86,6 +87,51 @@ Este proyecto sigue los principios de **Clean Architecture** con una organizaci�
 - **Single Responsibility**: Un módulo, una razón para cambiar
 - **Feature-First**: Código organizado por funcionalidad de negocio
 - **Composition over Inheritance**: Uso de composables de Vue 3
+
+## 🏢 Multi-Tenant
+
+Este proyecto implementa una arquitectura **multi-tenant** que permite a múltiples farmacias usar el mismo sistema con datos aislados.
+
+### 🎯 Características Multi-Tenant
+
+- **Subdomain-based**: Cada farmacia tiene su propio subdominio
+  - `http://farmacia-central.farmasys.local:5173` → Farmacia Central
+  - `http://admin.farmasys.local:5173` → Panel de Administración
+  - `http://demo.farmasys.local:5173` → Tenant de Demostración
+
+- **API Dinámica**: El frontend detecta automáticamente el tenant y hace peticiones al backend correcto
+  - Frontend: `farmacia-central.farmasys.local` → Backend: `farmacia-central.localhost:3000`
+
+- **Personalización por Tenant**: Cada farmacia puede tener:
+  - Logo personalizado
+  - Colores de marca
+  - Nombre de empresa
+  - Plan de suscripción (Free, Standard, Premium, Enterprise)
+
+### 📚 Documentación Completa
+
+Ver **[INDICE_DOCUMENTACION_MULTITENANT.md](./INDICE_DOCUMENTACION_MULTITENANT.md)** para:
+
+- 🚀 Guía de configuración rápida
+- 🏗️ Arquitectura técnica detallada
+- 🧪 Guías de testing
+- 🔧 Configuración del backend
+- 📊 Diagramas visuales
+
+### ⚡ Quick Start Multi-Tenant
+
+```bash
+# 1. Verificar configuración
+./scripts/verify-multitenant.sh
+
+# 2. Iniciar desarrollo
+npm run dev
+
+# 3. Acceder a diferentes tenants
+# http://farmacia-central.farmasys.local:5173/auth/login
+# http://admin.farmasys.local:5173/auth/login
+# http://demo.farmasys.local:5173/auth/login
+```
 
 ## 📋 Requisitos Previos
 

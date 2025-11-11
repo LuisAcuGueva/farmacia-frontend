@@ -1,69 +1,133 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { authGuard, guestGuard } from '@/core/shared/application/guards/auth.guard'
-import { roleGuard } from '@/core/shared/application/guards/role.guard'
-import { tenantGuard } from '@/core/router/guards/tenant.guard'
+import { authGuard, guestGuard } from '@shared/application/guards/auth.guard'
+import { roleGuard } from '@shared/application/guards/role.guard'
+import { tenantGuard } from '@shared/application/guards/tenant.guard'
 
-import { authRoutes } from '@/modules/auth/presentation/router/auth.routes'
+// Layouts
+import AdminLayout from '@shared/presentation/layouts/AdminLayout.vue'
+import TenantLayout from '@shared/presentation/layouts/TenantLayout.vue'
+import AuthLayout from '@shared/presentation/layouts/AuthLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // ==================== ROOT REDIRECT ====================
     {
       path: '/',
-      redirect: '/dashboard',
-    },
-    // Auth routes
-    ...authRoutes,
-    // Rutas protegidas
-    {
-      path: '/',
-      redirect: '/dashboard',
-    },
-    {
-      path: '/dashboard',
-      name: 'Dashboard',
-      component: () => import('../views/DashboardView.vue'),
-      meta: {
-        requiresAuth: true,
-        requiresTenant: true,
-        title: 'Dashboard',
+      redirect: () => {
+        // Redirigir según contexto (esto se puede mejorar)
+        return '/app/dashboard'
       },
     },
 
-    // Rutas de admin (sin tenant)
+    // ==================== AUTH ROUTES (con AuthLayout) ====================
+    {
+      path: '/auth',
+      component: AuthLayout,
+      meta: {
+        requiresAuth: false,
+        requiresTenant: true, // Las rutas de auth SÍ requieren tenant (excepto admin)
+      },
+      children: [
+        {
+          path: 'login',
+          name: 'Login',
+          component: () => import('@auth/presentation/pages/LoginPage.vue'),
+          beforeEnter: [tenantGuard, guestGuard],
+          meta: {
+            requiresGuest: true,
+            requiresTenant: true,
+            title: 'Iniciar Sesión',
+          },
+        },
+        {
+          path: 'recover-password',
+          name: 'RecoverPassword',
+          component: () => import('@auth/presentation/pages/RecoverPasswordPage.vue'),
+          beforeEnter: [tenantGuard, guestGuard],
+          meta: {
+            requiresGuest: true,
+            requiresTenant: true,
+            title: 'Recuperar Contraseña',
+          },
+        },
+        {
+          path: '',
+          redirect: '/auth/login',
+        },
+      ],
+    },
+
+    // ==================== ADMIN ROUTES (con AdminLayout) ====================
     {
       path: '/admin',
+      component: AdminLayout,
+      beforeEnter: [authGuard, roleGuard(['SUPER_ADMIN', 'ADMIN'])],
+      meta: {
+        requiresAuth: true,
+        requiresTenant: false, // Admin NO requiere tenant
+      },
       children: [
         {
           path: 'dashboard',
           name: 'AdminDashboard',
-          component: () => import('@admin/presentation/pages/AdminDashboardPage.vue'),
-          beforeEnter: [authGuard, roleGuard(['SUPER_ADMIN', 'ADMIN'])],
+          component: () => import('@admin/presentation/pages/DashboardPage.vue'),
           meta: {
-            requiresAuth: true,
-            requiresTenant: false, // Admin NO requiere tenant
             title: 'Dashboard Admin',
           },
         },
         {
           path: 'tenants',
           name: 'AdminTenants',
-          component: () => import('@admin/presentation/pages/TenantListPage.vue'),
-          beforeEnter: [authGuard, roleGuard(['SUPER_ADMIN', 'ADMIN'])],
+          component: () => import('@tenant/presentation/pages/TenantListPage.vue'),
           meta: {
-            requiresAuth: true,
-            requiresTenant: false, // Admin NO requiere tenant
             title: 'Gestión de Tenants',
           },
+        },
+        {
+          path: '',
+          redirect: '/admin/dashboard',
         },
       ],
     },
 
-    // Rutas de error de tenant
+    // ==================== TENANT/APP ROUTES (con TenantLayout) ====================
+    {
+      path: '/app',
+      component: TenantLayout,
+      beforeEnter: [authGuard, tenantGuard],
+      meta: {
+        requiresAuth: true,
+        requiresTenant: true,
+      },
+      children: [
+        {
+          path: 'dashboard',
+          name: 'TenantDashboard',
+          component: () => import('@admin/presentation/pages/DashboardPage.vue'),
+          meta: {
+            title: 'Dashboard',
+          },
+        },
+        // TODO: Agregar más rutas de tenant (sales, products, inventory, etc.)
+        {
+          path: '',
+          redirect: '/app/dashboard',
+        },
+      ],
+    },
+
+    // Redirect legacy /dashboard to /app/dashboard
+    {
+      path: '/dashboard',
+      redirect: '/app/dashboard',
+    },
+
+    // ==================== ERROR PAGES (sin layout) ====================
     {
       path: '/tenant-not-found',
       name: 'TenantNotFound',
-      component: () => import('../views/TenantNotFoundView.vue'),
+      component: () => import('@shared/presentation/pages/TenantNotFoundView.vue'),
       meta: {
         requiresAuth: false,
         requiresTenant: false,
@@ -73,7 +137,7 @@ const router = createRouter({
     {
       path: '/suspended',
       name: 'TenantSuspended',
-      component: () => import('../views/TenantSuspendedView.vue'),
+      component: () => import('@shared/presentation/pages/TenantSuspendedView.vue'),
       meta: {
         requiresAuth: false,
         requiresTenant: false,
@@ -83,7 +147,7 @@ const router = createRouter({
     {
       path: '/invalid-tenant',
       name: 'InvalidTenant',
-      component: () => import('../views/InvalidTenantView.vue'),
+      component: () => import('@shared/presentation/pages/InvalidTenantView.vue'),
       meta: {
         requiresAuth: false,
         requiresTenant: false,
@@ -91,11 +155,11 @@ const router = createRouter({
       },
     },
 
-    // 404 Not Found
+    // ==================== 404 NOT FOUND ====================
     {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
-      component: () => import('../views/NotFoundView.vue'),
+      component: () => import('@shared/presentation/pages/NotFoundView.vue'),
       meta: {
         title: 'Página no encontrada',
       },

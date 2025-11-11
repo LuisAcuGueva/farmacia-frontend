@@ -26,6 +26,11 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '@core': fileURLToPath(new URL('./src/core', import.meta.url)),
+        '@shared': fileURLToPath(new URL('./src/core/shared', import.meta.url)),
+        '@tenant': fileURLToPath(new URL('./src/core/tenant', import.meta.url)),
+        '@auth': fileURLToPath(new URL('./src/modules/auth', import.meta.url)),
+        '@admin': fileURLToPath(new URL('./src/modules/admin', import.meta.url)),
       },
       extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
     },
@@ -33,6 +38,11 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       host: true,
+      allowedHosts: [
+        'localhost',
+        'farmasys.local',
+        '.farmasys.local', // Wildcard para todos los subdominios
+      ],
       open: true,
       cors: true,
       proxy: {
@@ -41,6 +51,15 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
           rewrite: (path) => path.replace(/^\/api/, ''),
+          // Configuración de cookies para httpOnly
+          configure: (proxy, _options) => {
+            proxy.on('proxyReq', (proxyReq, req, _res) => {
+              // Asegurar que las cookies se envíen en las peticiones
+              if (req.headers.cookie) {
+                proxyReq.setHeader('cookie', req.headers.cookie)
+              }
+            })
+          },
         },
       },
     },
@@ -49,6 +68,12 @@ export default defineConfig(({ mode }) => {
       port: 4173,
       host: true,
       open: true,
+      allowedHosts: [
+        'farmasys.local',
+        'farmacia-central.farmasys.local',
+        'localhost',
+        '.farmasys.local',
+      ],
     },
 
     build: {
@@ -62,7 +87,7 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: {
             vue: ['vue', 'vue-router', 'pinia'],
-            vendor: ['axios'],
+            vendor: ['axios', '@vueuse/core', 'zod'],
           },
         },
       },

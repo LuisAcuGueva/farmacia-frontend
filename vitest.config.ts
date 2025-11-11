@@ -8,6 +8,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@core': fileURLToPath(new URL('./src/core', import.meta.url)),
+      '@shared': fileURLToPath(new URL('./src/core/shared', import.meta.url)),
+      '@tenant': fileURLToPath(new URL('./src/core/tenant', import.meta.url)),
+      '@auth': fileURLToPath(new URL('./src/modules/auth', import.meta.url)),
+      '@admin': fileURLToPath(new URL('./src/modules/admin', import.meta.url)),
     },
   },
   test: {
