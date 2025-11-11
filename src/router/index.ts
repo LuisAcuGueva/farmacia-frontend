@@ -71,7 +71,7 @@ const router = createRouter({
         {
           path: 'dashboard',
           name: 'AdminDashboard',
-          component: () => import('@admin/presentation/pages/DashboardPage.vue'),
+          component: () => import('@shared/presentation/pages/AdminDashboardPage.vue'),
           meta: {
             title: 'Dashboard Admin',
           },
@@ -104,7 +104,7 @@ const router = createRouter({
         {
           path: 'dashboard',
           name: 'TenantDashboard',
-          component: () => import('@admin/presentation/pages/DashboardPage.vue'),
+          component: () => import('@shared/presentation/pages/TenantDashboardPage.vue'),
           meta: {
             title: 'Dashboard',
           },
