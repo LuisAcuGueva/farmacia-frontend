@@ -1,3 +1,5 @@
+import { TENANT_CONFIG } from '@/core/shared/infrastructure/config/tenant.config'
+
 /**
  * Utilidad para detectar el tenant desde el subdomain
  */
@@ -13,7 +15,10 @@ export class SubdomainDetector {
   private readonly reservedSubdomains: Set<string>
   private readonly adminSubdomain: string
 
-  constructor(reservedSubdomains: string[], adminSubdomain: string) {
+  constructor(
+    reservedSubdomains: string[] = TENANT_CONFIG.RESERVED_SUBDOMAINS,
+    adminSubdomain: string = TENANT_CONFIG.ADMIN_SUBDOMAIN,
+  ) {
     this.reservedSubdomains = new Set(reservedSubdomains)
     this.adminSubdomain = adminSubdomain
   }
@@ -147,8 +152,5 @@ export class SubdomainDetector {
   }
 }
 
-// Instancia singleton
-export const subdomainDetector = new SubdomainDetector(
-  import.meta.env.VITE_RESERVED_SUBDOMAINS.split(','),
-  import.meta.env.VITE_ADMIN_SUBDOMAIN,
-)
+// Instancia singleton con configuración centralizada
+export const subdomainDetector = new SubdomainDetector()

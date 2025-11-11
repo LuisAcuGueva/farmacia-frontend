@@ -1,4 +1,5 @@
 import type { TenantMetadata } from '../../domain/types/tenant.types'
+import { TENANT_CONFIG } from '@/core/shared/infrastructure/config/tenant.config'
 
 interface CacheEntry {
   data: TenantMetadata
@@ -8,22 +9,31 @@ interface CacheEntry {
 
 /**
  * Sistema de caché para metadata de tenants
+ * Usa configuración centralizada de TENANT_CONFIG
  */
 export class TenantCache {
   private cache: Map<string, CacheEntry> = new Map()
   private readonly ttl: number
   private cleanupInterval: NodeJS.Timeout | null = null
 
-  constructor(ttlInMs: number = 300000) {
-    // 5 minutos default
+  constructor(ttlInMs: number = TENANT_CONFIG.CACHE_TTL) {
     this.ttl = ttlInMs
-    this.startCleanup()
+
+    // Iniciar limpieza automática solo si el caché está habilitado
+    if (TENANT_CONFIG.ENABLE_CACHE) {
+      this.startCleanup()
+    }
   }
 
   /**
    * Guarda tenant en caché
    */
   set(subdomain: string, data: TenantMetadata): void {
+    // Solo guardar si el caché está habilitado
+    if (!TENANT_CONFIG.ENABLE_CACHE) {
+      return
+    }
+
     const now = Date.now()
     this.cache.set(subdomain, {
       data,
@@ -36,6 +46,11 @@ export class TenantCache {
    * Obtiene tenant del caché
    */
   get(subdomain: string): TenantMetadata | null {
+    // Si el caché no está habilitado, retornar null
+    if (!TENANT_CONFIG.ENABLE_CACHE) {
+      return null
+    }
+
     const entry = this.cache.get(subdomain)
 
     if (!entry) {
@@ -151,7 +166,5 @@ export class TenantCache {
   }
 }
 
-// Instancia singleton
-export const tenantCache = new TenantCache(
-  parseInt(import.meta.env.VITE_TENANT_CACHE_TTL) || 300000,
-)
+// Instancia singleton con configuración centralizada
+export const tenantCache = new TenantCache()
