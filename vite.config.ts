@@ -30,7 +30,6 @@ export default defineConfig(({ mode }) => {
         '@shared': fileURLToPath(new URL('./src/core/shared', import.meta.url)),
         '@tenant': fileURLToPath(new URL('./src/core/tenant', import.meta.url)),
         '@auth': fileURLToPath(new URL('./src/modules/auth', import.meta.url)),
-        '@admin': fileURLToPath(new URL('./src/modules/admin', import.meta.url)),
       },
       extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
     },

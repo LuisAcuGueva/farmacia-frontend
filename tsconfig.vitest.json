@@ -11,8 +11,7 @@
       "@core/*": ["./src/core/*"],
       "@shared/*": ["./src/core/shared/*"],
       "@tenant/*": ["./src/core/tenant/*"],
-      "@auth/*": ["./src/modules/auth/*"],
-      "@admin/*": ["./src/modules/admin/*"]
+      "@auth/*": ["./src/modules/auth/*"]
     },
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "types": ["node", "jsdom", "vitest/globals"]

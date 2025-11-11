@@ -154,7 +154,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { tenantAdminService } from '@admin/application/services/tenant-admin.service'
+import { tenantAdminService } from '@tenant/application/services/tenant-admin.service'
 import type { TenantMetadata } from '@tenant/domain/types/tenant.types'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
