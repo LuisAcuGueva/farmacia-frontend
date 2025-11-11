@@ -12,6 +12,16 @@ export enum TenantDetectionMode {
 }
 
 /**
+ * Headers HTTP para tenant
+ * Estos headers se agregan automáticamente a todas las requests
+ */
+export const TENANT_HEADERS = {
+  SUBDOMAIN: 'X-Tenant-Subdomain',
+  ID: 'X-Tenant-Id',
+  SCHEMA: 'X-Tenant-Schema',
+} as const
+
+/**
  * Configuración de detección
  */
 export const TENANT_CONFIG = {
@@ -39,7 +49,7 @@ export const TENANT_CONFIG = {
   // Desarrollo
   DEV_MODE: import.meta.env.VITE_DEV_MODE === 'true',
   SHOW_TENANT_INFO: import.meta.env.VITE_SHOW_TENANT_INFO === 'true',
-}
+} as const
 
 /**
  * Validación de subdomain
