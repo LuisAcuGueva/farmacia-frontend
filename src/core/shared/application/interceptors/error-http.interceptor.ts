@@ -266,8 +266,8 @@ class ErrorHttpInterceptor {
    */
   private async logout(): Promise<void> {
     // Import stores dynamically to avoid initialization order / circular deps
-    const { useAuthStore } = await import('@/modules/auth/presentation/stores/auth.store')
-    const { useTenantStore } = await import('@/core/tenant/presentation/stores/tenant.store')
+    const { useAuthStore } = await import('@auth/presentation/stores/auth.store')
+    const { useTenantStore } = await import('@tenant/presentation/stores/tenant.store')
 
     const authStore = useAuthStore()
     const tenantStore = useTenantStore()
