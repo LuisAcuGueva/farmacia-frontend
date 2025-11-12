@@ -4,7 +4,7 @@
     <button
       type="button"
       class="flex items-center space-x-3 focus:outline-none"
-      @click="toggleMenu"
+      @click.stop="toggleMenu"
     >
       <div class="text-right hidden md:block">
         <p class="text-sm font-medium text-gray-900">{{ user?.name || 'Usuario' }}</p>
