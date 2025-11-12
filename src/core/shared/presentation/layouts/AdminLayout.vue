@@ -1,10 +1,13 @@
 <template>
   <div class="min-h-screen bg-gray-100">
-    <!-- Admin Sidebar -->
-    <AdminSidebar />
+    <!-- Mobile Sidebar Trigger (hamburger button) -->
+    <MobileSidebarTrigger @click="sidebarOpen = true" />
+
+    <!-- Admin Sidebar with mobile drawer support -->
+    <AdminSidebar v-model="sidebarOpen" />
 
     <!-- Main Content -->
-    <div class="ml-64">
+    <div class="md:ml-64 transition-all duration-200">
       <!-- Top Navbar -->
       <TopNavbar :title="pageTitle">
         <template #user-menu>
@@ -25,15 +28,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth } from '@/modules/auth/presentation/composables/useAuth'
 import AdminSidebar from '../components/navigation/AdminSidebar.vue'
+import MobileSidebarTrigger from '../components/navigation/MobileSidebarTrigger.vue'
 import TopNavbar from '../components/navigation/TopNavbar.vue'
 import UserMenu from '../components/navigation/UserMenu.vue'
 
 const route = useRoute()
 const { user } = useAuth()
+
+// Mobile drawer state
+const sidebarOpen = ref(false)
 
 /**
  * Page title from route meta
